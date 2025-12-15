@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-networkpolicy
+  namespace: backend
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+    - Egress
+  egress:
+    # Możliwość połączenia się z Pod-em my-sql tylko na 3306
+    - to:
+      - podSelector:
+          matchLabels:
+            run: my-sql
+      ports:
+      - protocol: TCP
+        port: 3306
+
+    # Możliwość połączenia się z Pod-ami Deploymentu frontend na dowolonym porcie
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: frontend
+        podSelector:
+          matchLabels:
+            app: frontend
